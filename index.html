@@ -9,7 +9,8 @@
     :root{--bg:#0c1220;--bg2:#111827;--card:rgba(17,24,39,0.7);--border:rgba(148,163,184,0.08);--bh:rgba(148,163,184,0.15);--t1:#f1f5f9;--t2:#94a3b8;--tm:#64748b;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--r:12px;--rs:8px}
     *{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
-    .nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .nav{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .nav-inner{max-width:1600px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
     .nav-brand{display:flex;align-items:center;gap:10px}
     .nav-logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--green));display:flex;align-items:center;justify-content:center;font-size:15px}
     .nav-name{font-size:14px;font-weight:600}.nav-tag{font-size:11px;color:var(--tm);margin-left:6px}
@@ -20,7 +21,8 @@
     @keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
     .btn-ic{width:30px;height:30px;border-radius:var(--rs);border:1px solid var(--border);background:0;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:.2s}
     .btn-ic:hover{background:rgba(20,184,166,.1);border-color:rgba(20,184,166,.3);color:var(--teal)}
-    .tb{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:8px;position:sticky;top:52px;z-index:99;flex-wrap:wrap}
+    .tb{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:99}
+    .tb-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:1600px;margin:0 auto;padding:8px 24px}
     .tb-pills{display:flex;align-items:center;gap:2px;background:rgba(30,41,59,.4);border-radius:var(--rs);padding:2px;border:1px solid var(--border)}
     .tb-p{padding:5px 12px;border-radius:6px;border:0;background:0;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;transition:.15s;white-space:nowrap}
     .tb-p:hover{color:var(--t1);background:rgba(148,163,184,.08)}
@@ -68,33 +70,33 @@
 </head>
 <body>
 <div id="ov" class="ov"><div class="sp"></div><div class="ov-t">Carregando dados do Meta Ads...</div></div>
-<nav class="nav">
+<nav class="nav"><div class="nav-inner">
   <div class="nav-brand"><div class="nav-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1m0 16v1m-8-9H3m18 0h-1m-2.636-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/><circle cx="12" cy="12" r="4"/></svg></div><span class="nav-name">Smiley Clean Homes</span><span class="nav-tag">Traffic Dashboard</span></div>
   <div class="nav-right">
-    <div class="nav-status"><div class="dot-s ld" id="sDot"></div><span id="sTxt">Conectando...</span></div>
-    <button class="btn-ic" onclick="load()" title="Atualizar dados">↻</button>
+    <div class="nav-status"><div class="dot-s ld" id="sDot"></div><span id="sTxt">Connecting...</span></div>
+    <button class="btn-ic" onclick="load()" title="Refresh data">↻</button>
   </div>
-</nav>
-<div class="tb">
+</div></nav>
+<div class="tb"><div class="tb-inner">
   <div class="tb-pills">
-    <button class="tb-p" onclick="qf('hoje')" id="q-hoje">Hoje</button>
+    <button class="tb-p" onclick="qf('hoje')" id="q-hoje">Today</button>
     <button class="tb-p" onclick="qf('7d')" id="q-7d">7D</button>
     <button class="tb-p" onclick="qf('30d')" id="q-30d">30D</button>
-    <button class="tb-p" onclick="qf('mes')" id="q-mes">Mês</button>
-    <button class="tb-p" onclick="qf('mesA')" id="q-mesA">Mês ant.</button>
-    <button class="tb-p" onclick="qf('all')" id="q-all">Tudo</button>
+    <button class="tb-p" onclick="qf('mes')" id="q-mes">Month</button>
+    <button class="tb-p" onclick="qf('mesA')" id="q-mesA">Last mo.</button>
+    <button class="tb-p" onclick="qf('all')" id="q-all">All</button>
   </div>
   <div class="tb-div"></div>
   <div class="tb-dates">
-    <label>De</label><input type="date" id="dF"/><span class="tb-dash">—</span><label>Até</label><input type="date" id="dT"/>
+    <label>From</label><input type="date" id="dF"/><span class="tb-dash">—</span><label>To</label><input type="date" id="dT"/>
   </div>
-</div>
+</div></div>
 <div class="main">
   <div class="kpi-g">
-    <div class="kpi"><div class="kpi-bar" style="background:var(--teal)"></div><div class="kpi-l">Leads</div><div class="kpi-v" id="kL">—</div><div class="kpi-s">Total no período</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-l">Investimento</div><div class="kpi-v sm" id="kI">—</div><div class="kpi-s">Gasto acumulado</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--orange)"></div><div class="kpi-l">CPL Médio</div><div class="kpi-v" id="kC">—</div><div class="kpi-s">Custo por lead</div></div>
-    <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-l">Período</div><div class="kpi-v" id="kD">—</div><div class="kpi-s">Dias selecionados</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--teal)"></div><div class="kpi-l">Leads</div><div class="kpi-v" id="kL">—</div><div class="kpi-s">Total in period</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-l">Ad Spend</div><div class="kpi-v sm" id="kI">—</div><div class="kpi-s">Total invested</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--orange)"></div><div class="kpi-l">Avg CPL</div><div class="kpi-v" id="kC">—</div><div class="kpi-s">Cost per lead</div></div>
+    <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-l">Period</div><div class="kpi-v" id="kD">—</div><div class="kpi-s">Days selected</div></div>
   </div>
 
   <div class="sec">
@@ -102,25 +104,25 @@
     <div class="cr cr1"><div class="cc"><div class="cw"><canvas id="c1"></canvas></div></div></div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--orange)"></span>Cost &amp; Spend Analysis</div>
+    <div class="sec-h"><span class="dot" style="background:var(--orange)"></span>Cost & Spend Analysis</div>
     <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c2"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c3"></canvas></div></div></div>
   </div>
   <div class="sec">
     <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age Group</div>
     <div class="cr cr2">
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS POR IDADE</div><div class="cw"><canvas id="c4"></canvas></div></div>
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">INVESTIMENTO POR IDADE</div><div class="cw"><canvas id="c5"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS BY AGE</div><div class="cw"><canvas id="c4"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">SPEND BY AGE</div><div class="cw"><canvas id="c5"></canvas></div></div>
     </div>
   </div>
   <div class="sec">
     <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads by Gender</div>
     <div class="cr cr2">
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS POR GÊNERO</div><div class="cw"><canvas id="c6"></canvas></div></div>
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">INVESTIMENTO POR GÊNERO</div><div class="cw"><canvas id="c7"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS BY GENDER</div><div class="cw"><canvas id="c6"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">SPEND BY GENDER</div><div class="cw"><canvas id="c7"></canvas></div></div>
     </div>
   </div>
 </div>
-<div class="ft" id="ft">Smiley Clean Homes · Dashboard de Tráfego · Google Sheets + Meta Ads</div>
+<div class="ft" id="ft">Smiley Clean Homes · Traffic Dashboard · Google Sheets + Meta Ads</div>
 <script>
 const URL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=0&single=true&output=csv';
 const AGES=['25-34','35-44','45-54','55-64'];
