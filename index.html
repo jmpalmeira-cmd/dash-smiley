@@ -98,20 +98,26 @@
   </div>
 
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--teal)"></span>Leads por Semana</div>
+    <div class="sec-h"><span class="dot" style="background:var(--teal)"></span>Leads by Week</div>
     <div class="cr cr1"><div class="cc"><div class="cw"><canvas id="c1"></canvas></div></div></div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--orange)"></span>Custo e Investimento</div>
+    <div class="sec-h"><span class="dot" style="background:var(--orange)"></span>Cost &amp; Spend Analysis</div>
     <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c2"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c3"></canvas></div></div></div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads por Faixa Etária</div>
-    <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c4"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c5"></canvas></div></div></div>
+    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age Group</div>
+    <div class="cr cr2">
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS POR IDADE</div><div class="cw"><canvas id="c4"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">INVESTIMENTO POR IDADE</div><div class="cw"><canvas id="c5"></canvas></div></div>
+    </div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads por Gênero</div>
-    <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c7"></canvas></div></div></div>
+    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads by Gender</div>
+    <div class="cr cr2">
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS POR GÊNERO</div><div class="cw"><canvas id="c6"></canvas></div></div>
+      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">INVESTIMENTO POR GÊNERO</div><div class="cw"><canvas id="c7"></canvas></div></div>
+    </div>
   </div>
 </div>
 <div class="ft" id="ft">Smiley Clean Homes · Dashboard de Tráfego · Google Sheets + Meta Ads</div>
@@ -168,7 +174,8 @@ function byGender(de,at){
 }
 
 const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{size:11},bodyFont:{size:11}};
-const fmt=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const $f=v=>'$'+Number(v).toFixed(2);
+const $fk=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+Number(v).toFixed(2);
 
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
@@ -181,8 +188,8 @@ function render(){
   const dias=Math.round((new Date(at)-new Date(de))/864e5)+1;
 
   $('kL').textContent=tl.toLocaleString('en-US');
-  $('kI').textContent=fmt(ts);
-  $('kC').textContent=fmt(tc);
+  $('kI').textContent='$'+ts.toFixed(2);
+  $('kC').textContent='$'+tc.toFixed(2);
   $('kD').textContent=dias+' days';
 
   // Age data
@@ -196,22 +203,23 @@ function render(){
   CH.a=new Chart($('c1'),{type:'bar',data:{labels:lb,datasets:[{data:ld,backgroundColor:ld.map(v=>v>=10?'#14b8a6':v>=5?'#2dd4bf':'#5eead4'),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},beginAtZero:true}}}});
 
   // CPL
-  CH.b=new Chart($('c2'),{type:'line',data:{labels:lb,datasets:[{label:'CPL',data:cp,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.05)',borderWidth:2.5,pointBackgroundColor:cp.map(v=>v>50?'#ef4444':'#10b981'),pointRadius:5,pointBorderWidth:2,pointBorderColor:'#0c1220',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' $'+c.raw}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>'$'+v}}}}});
+  CH.b=new Chart($('c2'),{type:'line',data:{labels:lb,datasets:[{label:'CPL',data:cp,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.05)',borderWidth:2.5,pointBackgroundColor:cp.map(v=>v>50?'#ef4444':'#10b981'),pointRadius:5,pointBorderWidth:2,pointBorderColor:'#0c1220',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$f(v)}}}}});
 
   // Weekly Spend
-  CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' $'+c.raw.toLocaleString('en-US')}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>'$'+v}}}}});
+  CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}}}}});
 
   // Leads by Age
-  CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL $'+ac[c.dataIndex]}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
+  CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL '+$f(ac[c.dataIndex])}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
 
   // Spend by Age
-  CH.e=new Chart($('c5'),{type:'bar',data:{labels:AGES,datasets:[{data:as2.map(v=>Math.round(v*100)/100),backgroundColor:['#8b5cf6','#a78bfa','#c4b5fd','#ddd6fe'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' $'+c.raw.toLocaleString('en-US')}}},scales:{x:{grid:{color:GC},border:{display:false},ticks:{callback:v=>'$'+v}},y:{grid:{display:false},border:{display:false}}}}});
+  CH.e=new Chart($('c5'),{type:'bar',data:{labels:AGES,datasets:[{data:as2.map(v=>Math.round(v*100)/100),backgroundColor:['#8b5cf6','#a78bfa','#c4b5fd','#ddd6fe'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}},y:{grid:{display:false},border:{display:false}}}}});
 
-  // Leads por Gênero
-  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:GENDERS,datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL $'+gc[c.dataIndex]}}}}});
+  // Leads por Leads by Gender
+  const glabels=['Feminino','Masculino'];
+  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:glabels,datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL '+$f(gc[c.dataIndex])}}}}});
 
-  // Spend by Gender
-  CH.g=new Chart($('c7'),{type:'doughnut',data:{labels:GENDERS,datasets:[{data:gs.map(v=>Math.round(v*100)/100),backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' $'+c.raw.toLocaleString('en-US')}}}}});
+  // Investimento por Leads by Gender
+  CH.g=new Chart($('c7'),{type:'doughnut',data:{labels:glabels,datasets:[{data:gs.map(v=>Math.round(v*100)/100),backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}}}});
 }
 
 async function load(){
