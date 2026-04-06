@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard de Tráfego — Smiley Clean Homes</title>
+  <title>Traffic Dashboard — Smiley Clean Homes</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    :root{--bg:#0c1220;--bg2:#111827;--card:rgba(17,24,39,0.7);--border:rgba(148,163,184,0.08);--bh:rgba(148,163,184,0.15);--t1:#f1f5f9;--t2:#94a3b8;--tm:#64748b;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--r:12px;--rs:8px}
+    :root{--bg:#0c1220;--bg2:#111827;--card:rgba(17,24,39,0.7);--border:rgba(148,163,184,0.08);--bh:rgba(148,163,184,0.15);--t1:#f1f5f9;--t2:#94a3b8;--tm:#64748b;--blue:#3b82f6;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--pink:#f472b6;--r:12px;--rs:8px}
     *{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
     .nav{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
     .nav-inner{max-width:1600px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
     .nav-brand{display:flex;align-items:center;gap:10px}
-    .nav-logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--green));display:flex;align-items:center;justify-content:center;font-size:15px}
+    .nav-logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--green));display:flex;align-items:center;justify-content:center}
     .nav-name{font-size:14px;font-weight:600}.nav-tag{font-size:11px;color:var(--tm);margin-left:6px}
     .nav-right{display:flex;align-items:center;gap:10px}
     .nav-status{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--tm)}
@@ -53,15 +53,16 @@
     .ft{text-align:center;padding:20px;color:var(--tm);font-size:10px;border-top:1px solid var(--border);margin-top:24px}
     @media(max-width:1024px){.cr2{grid-template-columns:1fr}.kpi-g{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:768px){
-      .nav{padding:0 14px;height:46px}.nav-tag{display:none}.nav-name{font-size:13px}
-      .tb{padding:6px 14px;gap:6px;top:46px}.tb-p{padding:4px 9px;font-size:10px}
+      .nav-inner{padding:0 14px;height:46px}.nav-tag{display:none}.nav-name{font-size:13px}
+      .tb-inner{padding:6px 14px;gap:6px}.tb-p{padding:4px 9px;font-size:10px}
       .tb-dates input{width:95px;font-size:11px}.tb-div{display:none}
       .main{padding:14px}.kpi-g{gap:8px}.kpi{padding:14px}
       .kpi-v{font-size:20px}.kpi-v.sm{font-size:16px}
       .cc{padding:12px}.cw{height:230px}
+      .tb{top:46px}
     }
     @media(max-width:480px){
-      .nav{height:42px}.nav-logo{width:26px;height:26px;font-size:11px}
+      .nav-inner{height:42px}.nav-logo{width:26px;height:26px}
       .tb{top:42px}.tb-pills{flex-wrap:wrap}
       .tb-dates{width:100%;margin-top:4px}.kpi-v{font-size:18px}.kpi-v.sm{font-size:15px}
       .kpi{padding:12px}.cw{height:200px}
@@ -111,73 +112,104 @@
     <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age & Gender</div>
     <div class="cr cr2">
       <div class="cc"><div class="cw"><canvas id="c4"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c5"></canvas></div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads by Platform</div>
+    <div class="cr cr2">
       <div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c7"></canvas></div></div>
     </div>
   </div>
 </div>
 <div class="ft" id="ft">Smiley Clean Homes · Traffic Dashboard · Google Sheets + Meta Ads</div>
 <script>
-const URL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=0&single=true&output=csv';
+// Two data sources — different sheets/tabs
+const URL1='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=0&single=true&output=csv';
+const URL2='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=6148347&single=true&output=csv';
+
 const AGES=['25-34','35-44','45-54','55-64'];
 const GENDERS=['Female','Male'];
+const PLATFORMS=['Facebook','Instagram'];
 const GC='rgba(148,163,184,0.06)';
-Chart.defaults.color='#64748b';Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";Chart.defaults.font.size=11;
-let CH={},D=[];const $=id=>document.getElementById(id);
 
+Chart.defaults.color='#64748b';
+Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+Chart.defaults.font.size=11;
+
+let CH={},D1=[],D2=[];
+const $=id=>document.getElementById(id);
+const $f=v=>'$'+Number(v).toFixed(2);
+const $fk=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+Number(v).toFixed(2);
+
+// CSV Parser
 function csv(t){const l=t.split('\n');if(l.length<2)return[];const h=csvl(l[0]),r=[];for(let i=1;i<l.length;i++){const ln=l[i].trim();if(!ln)continue;const v=csvl(ln),o={};h.forEach((k,j)=>o[k.trim()]=(v[j]||'').trim());r.push(o)}return r}
 function csvl(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'){if(i+1<l.length&&l[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}else c+=ch}}r.push(c);return r}
 
-function proc(rows){
+function parseSpend(s){if(!s||s==='0')return 0;s=s.trim();if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0}
+
+// Process Sheet 1: Age + Gender
+function proc1(rows){
   return rows.map(r=>{
     const day=r['Day']||r['day']||'';
-    let s=r['Amount Spent']||r['amount_spent']||'0';
-    if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');
-    else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');
+    const spend=parseSpend(r['Amount Spent']||r['amount_spent']||'0');
     const leads=parseInt(r['Leads']||r['leads']||'0')||0;
     const age=(r['Age']||r['age']||'').trim();
     const gender=(r['Gender']||r['gender']||'').trim();
-    return{day,spend:parseFloat(s)||0,leads,age,gender};
+    return{day,spend,leads,age,gender};
   }).filter(d=>d.day&&/^\d{4}-\d{2}-\d{2}$/.test(d.day));
 }
 
+// Process Sheet 2: Platform + Device
+function proc2(rows){
+  return rows.map(r=>{
+    const day=r['Day']||r['day']||'';
+    const spend=parseSpend(r['Amount Spent']||r['amount_spent']||'0');
+    const leads=parseInt(r['Leads']||r['leads']||'0')||0;
+    const platform=(r['Platform']||r['platform']||'').trim();
+    const devicePlatform=(r['Device Platform']||r['device_platform']||'').trim();
+    const convDevice=(r['Conversion Device']||r['conversion_device']||'').trim();
+    return{day,spend,leads,platform,devicePlatform,convDevice};
+  }).filter(d=>d.day&&/^\d{4}-\d{2}-\d{2}$/.test(d.day));
+}
+
+// Week grouping
 function wk(ds){const d=new Date(ds+'T00:00:00'),mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));const sun=new Date(mon);sun.setDate(mon.getDate()+6);const f=t=>String(t.getMonth()+1).padStart(2,'0')+'/'+String(t.getDate()).padStart(2,'0');return{l:f(mon)+'–'+f(sun),k:mon.toISOString().slice(0,10)}}
 
-function bySem(de,at){
-  const f=D.filter(d=>d.day>=de&&d.day<=at),s={};
+function bySem(data,de,at){
+  const f=data.filter(d=>d.day>=de&&d.day<=at),s={};
   f.forEach(d=>{const w=wk(d.day);if(!s[w.k])s[w.k]={l:w.l,k:w.k,leads:0,spend:0};s[w.k].leads+=d.leads;s[w.k].spend+=d.spend});
   return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k));
 }
 
-function byAge(de,at){
-  const f=D.filter(d=>d.day>=de&&d.day<=at),r={};
-  AGES.forEach(a=>r[a]={leads:0,spend:0});
-  f.forEach(d=>{if(d.age&&r[d.age]){r[d.age].leads+=d.leads;r[d.age].spend+=d.spend}});
+function byField(data,de,at,field,values){
+  const f=data.filter(d=>d.day>=de&&d.day<=at),r={};
+  values.forEach(v=>r[v]={leads:0,spend:0});
+  f.forEach(d=>{const v=d[field];if(v&&r[v]){r[v].leads+=d.leads;r[v].spend+=d.spend}});
   return r;
 }
 
-function byGender(de,at){
-  const f=D.filter(d=>d.day>=de&&d.day<=at),r={};
-  GENDERS.forEach(g=>r[g]={leads:0,spend:0});
-  f.forEach(d=>{
-    // Normalizar gender
-    let g=d.gender;
-    if(g.toLowerCase()==='female'||g.toLowerCase()==='feminino')g='Female';
-    else if(g.toLowerCase()==='male'||g.toLowerCase()==='masculino')g='Male';
-    if(r[g]){r[g].leads+=d.leads;r[g].spend+=d.spend}
-  });
-  return r;
+// Collect unique conversion devices
+function getConvDevices(data,de,at){
+  const f=data.filter(d=>d.day>=de&&d.day<=at);
+  const counts={};
+  f.forEach(d=>{if(d.convDevice){counts[d.convDevice]=(counts[d.convDevice]||0)+d.leads}});
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
 }
 
 const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{size:11},bodyFont:{size:11}};
-const $f=v=>'$'+Number(v).toFixed(2);
-const $fk=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+Number(v).toFixed(2);
 
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
-  const sem=bySem(de,at),age=byAge(de,at),gen=byGender(de,at);
-  if(!sem.length){alert('No data found for this period.');return}
+
+  // Use D1 for weekly/KPI (primary data source) and age/gender
+  const sem=bySem(D1,de,at);
+  if(!sem.length&&!D2.length){alert('No data found for this period.');return}
+
   Object.values(CH).forEach(c=>c?.destroy());CH={};
 
+  // Weekly data
   const lb=sem.map(s=>s.l),ld=sem.map(s=>s.leads),sp=sem.map(s=>s.spend),cp=sem.map(s=>s.leads>0?Math.round(s.spend/s.leads*100)/100:0);
   const tl=ld.reduce((a,b)=>a+b,0),ts=sp.reduce((a,b)=>a+b,0),tc=tl>0?Math.round(ts/tl*100)/100:0;
   const dias=Math.round((new Date(at)-new Date(de))/864e5)+1;
@@ -187,43 +219,78 @@ function render(){
   $('kC').textContent='$'+tc.toFixed(2);
   $('kD').textContent=dias+' days';
 
-  // Age data
-  const al=AGES.map(a=>age[a].leads),as2=AGES.map(a=>age[a].spend);
-  const ac=AGES.map(a=>age[a].leads>0?Math.round(age[a].spend/age[a].leads*100)/100:0);
-  // Gender data
-  const gl=GENDERS.map(g=>gen[g].leads),gs=GENDERS.map(g=>gen[g].spend);
-  const gc=GENDERS.map(g=>gen[g].leads>0?Math.round(gen[g].spend/gen[g].leads*100)/100:0);
+  // Age + Gender from D1
+  const age=byField(D1,de,at,'age',AGES);
+  const gen=byField(D1,de,at,'gender',GENDERS);
+  const al=AGES.map(a=>age[a].leads);
+  const gl=GENDERS.map(g=>gen[g].leads);
+
+  // Platform + Device from D2
+  const plat=byField(D2,de,at,'platform',PLATFORMS);
+  const pl=PLATFORMS.map(p=>plat[p].leads);
+  const devices=getConvDevices(D2,de,at);
+  const devData=byField(D2,de,at,'convDevice',devices);
+  const dl=devices.map(d=>devData[d].leads);
+
+  // Colors for devices
+  const devColors=['#14b8a6','#60a5fa','#f472b6','#a78bfa','#fbbf24','#34d399'];
+
+  // ---- CHARTS ----
 
   // Weekly Leads
-  CH.a=new Chart($('c1'),{type:'bar',data:{labels:lb,datasets:[{data:ld,backgroundColor:ld.map(v=>v>=10?'#14b8a6':v>=5?'#2dd4bf':'#5eead4'),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},beginAtZero:true}}}});
+  if(sem.length) CH.a=new Chart($('c1'),{type:'bar',data:{labels:lb,datasets:[{data:ld,backgroundColor:ld.map(v=>v>=10?'#14b8a6':v>=5?'#2dd4bf':'#5eead4'),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},beginAtZero:true}}}});
 
   // CPL
-  CH.b=new Chart($('c2'),{type:'line',data:{labels:lb,datasets:[{label:'CPL',data:cp,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.05)',borderWidth:2.5,pointBackgroundColor:cp.map(v=>v>50?'#ef4444':'#10b981'),pointRadius:5,pointBorderWidth:2,pointBorderColor:'#0c1220',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$f(v)}}}}});
+  if(sem.length) CH.b=new Chart($('c2'),{type:'line',data:{labels:lb,datasets:[{label:'CPL',data:cp,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.05)',borderWidth:2.5,pointBackgroundColor:cp.map(v=>v>50?'#ef4444':'#10b981'),pointRadius:5,pointBorderWidth:2,pointBorderColor:'#0c1220',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$f(v)}}}}});
 
   // Weekly Spend
-  CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}}}}});
+  if(sem.length) CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}}}}});
 
-  // Leads by Age
+  // Leads by Age (horizontal bar)
   CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
 
-  // Leads by Gender
-  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:['Female','Male'],datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
+  // Leads by Gender (doughnut)
+  CH.e=new Chart($('c5'),{type:'doughnut',data:{labels:['Female','Male'],datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
+
+  // Leads by Platform (doughnut)
+  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:PLATFORMS,datasets:[{data:pl,backgroundColor:['#60a5fa','#e879a8'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
+
+  // Leads by Conversion Device (horizontal bar)
+  CH.g=new Chart($('c7'),{type:'bar',data:{labels:devices,datasets:[{data:dl,backgroundColor:devices.map((_,i)=>devColors[i%devColors.length]),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
 }
 
 async function load(){
   const dot=$('sDot'),txt=$('sTxt'),o=$('ov');
   dot.className='dot-s ld';txt.textContent='Loading...';o.style.display='flex';
   try{
-    const res=await fetch(URL_CSV);if(!res.ok)throw new Error('HTTP '+res.status);
-    const t=await res.text(),rows=csv(t);if(!rows.length)throw new Error('Empty spreadsheet');
-    D=proc(rows);if(!D.length)throw new Error('No valid data found');
-    const dts=D.map(d=>d.day).sort(),mn=dts[0],mx=dts[dts.length-1];
+    // Fetch both sheets in parallel
+    const [res1,res2]=await Promise.all([fetch(URL1),fetch(URL2)]);
+    if(!res1.ok)throw new Error('Sheet 1: HTTP '+res1.status);
+    if(!res2.ok)throw new Error('Sheet 2: HTTP '+res2.status);
+
+    const [t1,t2]=await Promise.all([res1.text(),res2.text()]);
+    const rows1=csv(t1),rows2=csv(t2);
+
+    D1=proc1(rows1);
+    D2=proc2(rows2);
+
+    if(!D1.length&&!D2.length)throw new Error('No valid data found');
+
+    // Date range from both sources
+    const allDays=[...D1.map(d=>d.day),...D2.map(d=>d.day)].sort();
+    const mn=allDays[0],mx=allDays[allDays.length-1];
     const mxD=new Date(mx+'T00:00:00'),df=new Date(mxD.getFullYear(),mxD.getMonth(),1).toISOString().slice(0,10);
-    $('dF').value=df;$('dF').min=mn;$('dF').max=mx;$('dT').value=mx;$('dT').min=mn;$('dT').max=mx;
-    dot.className='dot-s on';const n=new Date();txt.textContent=D.length+' reg · '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
-    $('ft').textContent='Smiley Clean Homes · Dados de '+mn+' to '+mx+' · Google Sheets + Meta Ads';
+
+    $('dF').value=df;$('dF').min=mn;$('dF').max=mx;
+    $('dT').value=mx;$('dT').min=mn;$('dT').max=mx;
+
+    dot.className='dot-s on';
+    const n=new Date();
+    const totalRows=D1.length+D2.length;
+    txt.textContent=totalRows+' rows · '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+    $('ft').textContent='Smiley Clean Homes · Data from '+mn+' to '+mx+' · Google Sheets + Meta Ads';
     render();
-  }catch(e){dot.className='dot-s err';txt.textContent='Erro: '+e.message;console.error(e)}
+  }catch(e){dot.className='dot-s err';txt.textContent='Error: '+e.message;console.error(e)}
   finally{o.style.display='none'}
 }
 
@@ -236,7 +303,7 @@ function qf(t){
     case'30d':a=fd(h);{const x=new Date(h);x.setDate(x.getDate()-29);d=fd(x)}break;
     case'mes':d=fd(new Date(h.getFullYear(),h.getMonth(),1));a=fd(h);break;
     case'mesA':d=fd(new Date(h.getFullYear(),h.getMonth()-1,1));a=fd(new Date(h.getFullYear(),h.getMonth(),0));break;
-    case'all':if(D.length){const dt=D.map(x=>x.day).sort();d=dt[0];a=dt[dt.length-1]}break;
+    case'all':if(D1.length||D2.length){const dt=[...D1.map(x=>x.day),...D2.map(x=>x.day)].sort();d=dt[0];a=dt[dt.length-1]}break;
   }
   $('dF').value=d;$('dT').value=a;
   document.querySelectorAll('.tb-p').forEach(b=>b.classList.remove('on'));
