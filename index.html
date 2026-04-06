@@ -116,7 +116,7 @@
     </div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads by Platform</div>
+    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Platform & Device</div>
     <div class="cr cr2">
       <div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div>
       <div class="cc"><div class="cw"><canvas id="c7"></canvas></div></div>
@@ -167,15 +167,11 @@ function proc1(rows){
 }
 
 // Process Sheet 2: Platform + Device
+// Leads are duplicated across Conversion Device rows — deduplicate by Day+Platform+DevicePlatform
 function proc2(rows){
-  if(rows.length>0){
-    // Debug: log headers to console
-    console.log('Sheet 2 headers:', Object.keys(rows[0]));
-    console.log('Sheet 2 sample row:', rows[0]);
-  }
-  return rows.map(r=>{
-    // Flexible column matching — find the key that contains the word
-    const getCol=(row,names)=>{for(const n of names){if(row[n]!==undefined)return row[n]}for(const k of Object.keys(row)){const kl=k.toLowerCase().trim();for(const n of names){if(kl.includes(n.toLowerCase()))return row[k]}}return ''};
+  if(rows.length>0) console.log('Sheet 2 headers:', Object.keys(rows[0]));
+  const getCol=(row,names)=>{for(const n of names){if(row[n]!==undefined)return row[n]}for(const k of Object.keys(row)){const kl=k.toLowerCase().trim();for(const n of names){if(kl.includes(n.toLowerCase()))return row[k]}}return ''};
+  const allRows=rows.map(r=>{
     const day=getCol(r,['Day','day','Date','date']).trim();
     const spend=parseSpend(getCol(r,['Amount Spent','amount_spent','Amount spent','Valor'])||'0');
     const leads=parseInt(getCol(r,['Leads','leads'])||'0')||0;
@@ -184,6 +180,21 @@ function proc2(rows){
     const convDevice=getCol(r,['Conversion Device','conversion_device']).trim();
     return{day,spend,leads,platform,devicePlatform,convDevice};
   }).filter(d=>d.day&&/^\d{4}-\d{2}-\d{2}$/.test(d.day));
+  // Store raw for device spend breakdown
+  window._rawD2=allRows;
+  // Deduplicate for accurate leads/spend totals
+  const seen=new Set(),dedup=[];
+  allRows.forEach(r=>{const k=r.day+'|'+r.platform+'|'+r.devicePlatform;if(!seen.has(k)){seen.add(k);dedup.push(r)}});
+  console.log('Sheet 2: '+allRows.length+' raw → '+dedup.length+' dedup');
+  return dedup;
+}
+
+function byDeviceSpend(de,at){
+  const raw=window._rawD2||[];
+  const f=raw.filter(d=>d.day>=de&&d.day<=at&&d.spend>0);
+  const c={};
+  f.forEach(d=>{if(d.convDevice){if(!c[d.convDevice])c[d.convDevice]=0;c[d.convDevice]+=d.spend}});
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]);
 }
 
 // Week grouping
@@ -200,14 +211,6 @@ function byField(data,de,at,field,values){
   values.forEach(v=>r[v]={leads:0,spend:0});
   f.forEach(d=>{const v=d[field];if(v&&r[v]){r[v].leads+=d.leads;r[v].spend+=d.spend}});
   return r;
-}
-
-// Collect unique conversion devices
-function getConvDevices(data,de,at){
-  const f=data.filter(d=>d.day>=de&&d.day<=at);
-  const counts={};
-  f.forEach(d=>{if(d.convDevice){counts[d.convDevice]=(counts[d.convDevice]||0)+d.leads}});
-  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
 }
 
 const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{size:11},bodyFont:{size:11}};
@@ -245,17 +248,19 @@ function render(){
   const al=AGES.map(a=>age[a].leads);
   const gl=GENDERS.map(g=>gen[g].leads);
 
-  // Platform + Device from D2
+  // Platform leads from D2 (already deduplicated)
   const plat=byField(D2,de,at,'platform',PLATFORMS);
   const pl=PLATFORMS.map(p=>plat[p].leads);
-  const devices=getConvDevices(D2,de,at);
-  const devData=byField(D2,de,at,'convDevice',devices);
-  const dl=devices.map(d=>devData[d].leads);
+
+  // Device breakdown by spend (from raw non-dedup data)
+  const devSpend=byDeviceSpend(de,at);
+  const devLabels=devSpend.map(e=>e[0]);
+  const devVals=devSpend.map(e=>Math.round(e[1]*100)/100);
 
   // Debug
   console.log('Filter:', de, 'to', at);
-  console.log('D1 filtered:', f1.length, 'rows | D2 filtered:', f2.length, 'rows');
-  console.log('KPI leads:', tl, '| Platform leads:', pl, '| Device leads:', dl);
+  console.log('D1 filtered:', f1.length, '| D2 filtered:', f2.length);
+  console.log('KPI leads:', tl, '| Platform leads:', pl);
 
   // Colors for devices
   const devColors=['#14b8a6','#60a5fa','#f472b6','#a78bfa','#fbbf24','#34d399'];
@@ -280,8 +285,9 @@ function render(){
   // Leads by Platform (doughnut)
   CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:PLATFORMS,datasets:[{data:pl,backgroundColor:['#60a5fa','#e879a8'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
 
-  // Leads by Conversion Device (horizontal bar)
-  CH.g=new Chart($('c7'),{type:'bar',data:{labels:devices,datasets:[{data:dl,backgroundColor:devices.map((_,i)=>devColors[i%devColors.length]),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
+  // Spend by Conversion Device (horizontal bar)
+  const devColors=['#14b8a6','#60a5fa','#f472b6','#a78bfa','#fbbf24','#34d399'];
+  CH.g=new Chart($('c7'),{type:'bar',data:{labels:devLabels,datasets:[{data:devVals,backgroundColor:devLabels.map((_,i)=>devColors[i%devColors.length]),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}},y:{grid:{display:false},border:{display:false}}}}});
 }
 
 async function load(){
