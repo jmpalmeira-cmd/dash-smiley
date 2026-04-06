@@ -203,21 +203,29 @@ const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
 
-  // Use D1 for weekly/KPI (primary data source) and age/gender
-  const sem=bySem(D1,de,at);
-  if(!sem.length&&!D2.length){alert('No data found for this period.');return}
+  // Filter both datasets by date
+  const f1=D1.filter(d=>d.day>=de&&d.day<=at);
+  const f2=D2.filter(d=>d.day>=de&&d.day<=at);
+
+  if(!f1.length&&!f2.length){alert('No data found for this period.');return}
 
   Object.values(CH).forEach(c=>c?.destroy());CH={};
 
-  // Weekly data
-  const lb=sem.map(s=>s.l),ld=sem.map(s=>s.leads),sp=sem.map(s=>s.spend),cp=sem.map(s=>s.leads>0?Math.round(s.spend/s.leads*100)/100:0);
-  const tl=ld.reduce((a,b)=>a+b,0),ts=sp.reduce((a,b)=>a+b,0),tc=tl>0?Math.round(ts/tl*100)/100:0;
+  // KPIs — use D1 as primary, fallback to D2
+  const kpiData=f1.length?f1:f2;
+  const tl=kpiData.reduce((a,d)=>a+d.leads,0);
+  const ts=kpiData.reduce((a,d)=>a+d.spend,0);
+  const tc=tl>0?Math.round(ts/tl*100)/100:0;
   const dias=Math.round((new Date(at)-new Date(de))/864e5)+1;
 
   $('kL').textContent=tl.toLocaleString('en-US');
   $('kI').textContent='$'+ts.toFixed(2);
   $('kC').textContent='$'+tc.toFixed(2);
   $('kD').textContent=dias+' days';
+
+  // Weekly data from primary source
+  const sem=bySem(kpiData,de,at);
+  const lb=sem.map(s=>s.l),ld=sem.map(s=>s.leads),sp=sem.map(s=>s.spend),cp=sem.map(s=>s.leads>0?Math.round(s.spend/s.leads*100)/100:0);
 
   // Age + Gender from D1
   const age=byField(D1,de,at,'age',AGES);
