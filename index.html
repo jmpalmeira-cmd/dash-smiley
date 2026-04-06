@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Traffic Dashboard — Smiley Clean Homes</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
@@ -34,6 +34,8 @@
     .tb-dates input::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:pointer}
     .tb-dash{color:var(--tm);font-size:11px;padding:0 2px}
     .main{max-width:1600px;margin:0 auto;padding:20px 24px}
+
+    /* KPI row */
     .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
     .kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;backdrop-filter:blur(10px);transition:border-color .2s;position:relative;overflow:hidden}
     .kpi:hover{border-color:var(--bh)}
@@ -41,17 +43,40 @@
     .kpi-l{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
     .kpi-v{font-size:26px;font-weight:700;line-height:1.1;letter-spacing:-.5px}.kpi-v.sm{font-size:20px}
     .kpi-s{font-size:10px;color:var(--tm);margin-top:3px}
+
+    /* Sections */
     .sec{margin-bottom:20px}
     .sec-h{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.5px}
     .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-    .cr{display:grid;gap:14px}.cr1{grid-template-columns:1fr}.cr2{grid-template-columns:repeat(2,1fr)}
+    .cr{display:grid;gap:14px}.cr1{grid-template-columns:1fr}.cr2{grid-template-columns:repeat(2,1fr)}.cr3{grid-template-columns:repeat(3,1fr)}
     .cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;backdrop-filter:blur(10px);transition:border-color .2s}
     .cc:hover{border-color:var(--bh)}.cw{position:relative;height:290px}
+
+    /* Gender bar */
+    .gen-card{display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px}
+    .gen-row{display:flex;align-items:center;gap:12px}
+    .gen-icon{font-size:11px;font-weight:600;color:var(--tm);width:52px;text-transform:uppercase;letter-spacing:.3px}
+    .gen-bar-wrap{flex:1;height:28px;background:rgba(148,163,184,0.06);border-radius:6px;overflow:hidden;position:relative}
+    .gen-bar{height:100%;border-radius:6px;transition:width .6s ease}
+    .gen-val{font-size:18px;font-weight:700;width:50px;text-align:right}
+    .gen-pct{font-size:11px;color:var(--tm);margin-left:4px}
+
+    /* Platform mini KPIs */
+    .plat-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;height:100%}
+    .plat-card{background:rgba(30,41,59,0.3);border:1px solid var(--border);border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:center}
+    .plat-name{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .plat-dot{width:8px;height:8px;border-radius:50%}
+    .plat-leads{font-size:28px;font-weight:700;line-height:1}
+    .plat-sub{font-size:11px;color:var(--tm);margin-top:6px}
+    .plat-cpl{font-size:13px;font-weight:600;color:var(--t2);margin-top:2px}
+
+    /* Loading */
     .ov{position:fixed;inset:0;background:rgba(12,18,32,.95);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px}
     .sp{width:32px;height:32px;border:3px solid rgba(20,184,166,.15);border-top-color:var(--teal);border-radius:50%;animation:s .7s linear infinite}
     @keyframes s{to{transform:rotate(360deg)}}.ov-t{font-size:12px;color:var(--tm)}
     .ft{text-align:center;padding:20px;color:var(--tm);font-size:10px;border-top:1px solid var(--border);margin-top:24px}
-    @media(max-width:1024px){.cr2{grid-template-columns:1fr}.kpi-g{grid-template-columns:repeat(2,1fr)}}
+
+    @media(max-width:1024px){.cr2{grid-template-columns:1fr}.cr3{grid-template-columns:1fr}.kpi-g{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:768px){
       .nav-inner{padding:0 14px;height:46px}.nav-tag{display:none}.nav-name{font-size:13px}
       .tb-inner{padding:6px 14px;gap:6px}.tb-p{padding:4px 9px;font-size:10px}
@@ -59,18 +84,19 @@
       .main{padding:14px}.kpi-g{gap:8px}.kpi{padding:14px}
       .kpi-v{font-size:20px}.kpi-v.sm{font-size:16px}
       .cc{padding:12px}.cw{height:230px}
-      .tb{top:46px}
+      .tb{top:46px}.plat-leads{font-size:22px}
     }
     @media(max-width:480px){
       .nav-inner{height:42px}.nav-logo{width:26px;height:26px}
       .tb{top:42px}.tb-pills{flex-wrap:wrap}
       .tb-dates{width:100%;margin-top:4px}.kpi-v{font-size:18px}.kpi-v.sm{font-size:15px}
-      .kpi{padding:12px}.cw{height:200px}
+      .kpi{padding:12px}.cw{height:200px}.plat-cards{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
 <div id="ov" class="ov"><div class="sp"></div><div class="ov-t">Loading Meta Ads data...</div></div>
+
 <nav class="nav"><div class="nav-inner">
   <div class="nav-brand"><div class="nav-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1m0 16v1m-8-9H3m18 0h-1m-2.636-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/><circle cx="12" cy="12" r="4"/></svg></div><span class="nav-name">Smiley Clean Homes</span><span class="nav-tag">Traffic Dashboard</span></div>
   <div class="nav-right">
@@ -78,6 +104,7 @@
     <button class="btn-ic" onclick="load()" title="Refresh data">↻</button>
   </div>
 </div></nav>
+
 <div class="tb"><div class="tb-inner">
   <div class="tb-pills">
     <button class="tb-p" onclick="qf('hoje')" id="q-hoje">Today</button>
@@ -92,7 +119,9 @@
     <label>From</label><input type="date" id="dF"/><span class="tb-dash">—</span><label>To</label><input type="date" id="dT"/>
   </div>
 </div></div>
+
 <div class="main">
+  <!-- KPIs -->
   <div class="kpi-g">
     <div class="kpi"><div class="kpi-bar" style="background:var(--teal)"></div><div class="kpi-l">Leads</div><div class="kpi-v" id="kL">—</div><div class="kpi-s">Total in period</div></div>
     <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-l">Ad Spend</div><div class="kpi-v sm" id="kI">—</div><div class="kpi-s">Total invested</div></div>
@@ -100,65 +129,94 @@
     <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-l">Period</div><div class="kpi-v" id="kD">—</div><div class="kpi-s">Days selected</div></div>
   </div>
 
+  <!-- Weekly Leads -->
   <div class="sec">
     <div class="sec-h"><span class="dot" style="background:var(--teal)"></span>Leads by Week</div>
     <div class="cr cr1"><div class="cc"><div class="cw"><canvas id="c1"></canvas></div></div></div>
   </div>
+
+  <!-- CPL + Spend -->
   <div class="sec">
     <div class="sec-h"><span class="dot" style="background:var(--orange)"></span>Cost & Spend Analysis</div>
-    <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c2"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c3"></canvas></div></div></div>
-  </div>
-  <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age & Gender</div>
     <div class="cr cr2">
-      <div class="cc"><div class="cw"><canvas id="c4"></canvas></div></div>
-      <div class="cc"><div class="cw"><canvas id="c5"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c2"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c3"></canvas></div></div>
     </div>
   </div>
+
+  <!-- Age (bar) + Gender (visual bar) -->
+  <div class="sec">
+    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Audience Breakdown</div>
+    <div class="cr cr2">
+      <div class="cc"><div class="cw"><canvas id="c4"></canvas></div></div>
+      <div class="cc gen-card" id="genCard">
+        <div class="gen-row">
+          <span class="gen-icon">Female</span>
+          <div class="gen-bar-wrap"><div class="gen-bar" id="genBarF" style="background:var(--pink);width:0%"></div></div>
+          <span class="gen-val" id="genValF">—</span><span class="gen-pct" id="genPctF"></span>
+        </div>
+        <div class="gen-row">
+          <span class="gen-icon">Male</span>
+          <div class="gen-bar-wrap"><div class="gen-bar" id="genBarM" style="background:var(--blue);width:0%"></div></div>
+          <span class="gen-val" id="genValM">—</span><span class="gen-pct" id="genPctM"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform: mini KPIs + trend line -->
   <div class="sec">
     <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Platform Performance</div>
     <div class="cr cr2">
-      <div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div>
-      <div class="cc"><div class="cw"><canvas id="c7"></canvas></div></div>
+      <div class="cc" style="padding:14px">
+        <div class="plat-cards">
+          <div class="plat-card">
+            <div class="plat-name"><div class="plat-dot" style="background:#60a5fa"></div>Facebook</div>
+            <div class="plat-leads" id="pFbL">—</div>
+            <div class="plat-sub">leads</div>
+            <div class="plat-cpl" id="pFbC">—</div>
+          </div>
+          <div class="plat-card">
+            <div class="plat-name"><div class="plat-dot" style="background:#e879a8"></div>Instagram</div>
+            <div class="plat-leads" id="pIgL">—</div>
+            <div class="plat-sub">leads</div>
+            <div class="plat-cpl" id="pIgC">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="cc"><div class="cw"><canvas id="c5"></canvas></div></div>
     </div>
   </div>
 </div>
+
 <div class="ft" id="ft">Smiley Clean Homes · Traffic Dashboard · Google Sheets + Meta Ads</div>
+
 <script>
-// Two data sources — different sheets/tabs
 const URL1='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=0&single=true&output=csv';
 const URL2='https://docs.google.com/spreadsheets/d/e/2PACX-1vTgWJXZawiW8n-tyn0WqLr9NVlsyGBWvZbN9K8i9iN0dcogBuqFgc1-CQruPQKdcFXMreXhOwkxGzxx/pub?gid=6148347&single=true&output=csv';
-
 const AGES=['25-34','35-44','45-54','55-64'];
 const GENDERS=['Female','Male'];
 const PLATFORMS=['Facebook','Instagram'];
 const GC='rgba(148,163,184,0.06)';
-
-Chart.defaults.color='#64748b';
-Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
-Chart.defaults.font.size=11;
-
+Chart.defaults.color='#64748b';Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";Chart.defaults.font.size=11;
 let CH={},D1=[],D2=[];
 const $=id=>document.getElementById(id);
 const $f=v=>'$'+Number(v).toFixed(2);
 const $fk=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+Number(v).toFixed(2);
 
-// CSV Parser
+// CSV
 function csv(t){const l=t.split('\n');if(l.length<2)return[];const h=csvl(l[0]),r=[];for(let i=1;i<l.length;i++){const ln=l[i].trim();if(!ln)continue;const v=csvl(ln),o={};h.forEach((k,j)=>o[k.trim()]=(v[j]||'').trim());r.push(o)}return r}
 function csvl(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(q){if(ch==='"'){if(i+1<l.length&&l[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else{if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}else c+=ch}}r.push(c);return r}
-
 function parseSpend(s){if(!s||s==='0')return 0;s=s.trim();if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)||0}
+
+// Flexible column getter
+function getCol(row,names){for(const n of names){if(row[n]!==undefined)return row[n]}for(const k of Object.keys(row)){const kl=k.toLowerCase().trim();for(const n of names){if(kl.includes(n.toLowerCase()))return row[k]}}return ''}
 
 // Process Sheet 1: Age + Gender
 function proc1(rows){
-  if(rows.length>0){
-    console.log('Sheet 1 headers:', Object.keys(rows[0]));
-    console.log('Sheet 1 sample row:', rows[0]);
-  }
   return rows.map(r=>{
-    const getCol=(row,names)=>{for(const n of names){if(row[n]!==undefined)return row[n]}for(const k of Object.keys(row)){const kl=k.toLowerCase().trim();for(const n of names){if(kl.includes(n.toLowerCase()))return row[k]}}return ''};
-    const day=getCol(r,['Day','day','Date','date']).trim();
-    const spend=parseSpend(getCol(r,['Amount Spent','amount_spent','Amount spent','Valor'])||'0');
+    const day=getCol(r,['Day','day','Date']).trim();
+    const spend=parseSpend(getCol(r,['Amount Spent','amount_spent'])||'0');
     const leads=parseInt(getCol(r,['Leads','leads'])||'0')||0;
     const age=getCol(r,['Age','age']).trim();
     const gender=getCol(r,['Gender','gender']).trim();
@@ -166,100 +224,82 @@ function proc1(rows){
   }).filter(d=>d.day&&/^\d{4}-\d{2}-\d{2}$/.test(d.day));
 }
 
-// Process Sheet 2: Platform + Device
-// Leads are duplicated across Conversion Device rows — deduplicate by Day+Platform+DevicePlatform
+// Process Sheet 2: Platform + Device (deduplicate by Day+Platform+DevicePlatform)
 function proc2(rows){
-  if(rows.length>0) console.log('Sheet 2 headers:', Object.keys(rows[0]));
-  const getCol=(row,names)=>{for(const n of names){if(row[n]!==undefined)return row[n]}for(const k of Object.keys(row)){const kl=k.toLowerCase().trim();for(const n of names){if(kl.includes(n.toLowerCase()))return row[k]}}return ''};
   const allRows=rows.map(r=>{
-    const day=getCol(r,['Day','day','Date','date']).trim();
-    const spend=parseSpend(getCol(r,['Amount Spent','amount_spent','Amount spent','Valor'])||'0');
+    const day=getCol(r,['Day','day','Date']).trim();
+    const spend=parseSpend(getCol(r,['Amount Spent','amount_spent'])||'0');
     const leads=parseInt(getCol(r,['Leads','leads'])||'0')||0;
     const platform=getCol(r,['Platform','platform']).trim();
     const devicePlatform=getCol(r,['Device Platform','device_platform']).trim();
-    const convDevice=getCol(r,['Conversion Device','conversion_device']).trim();
-    return{day,spend,leads,platform,devicePlatform,convDevice};
+    return{day,spend,leads,platform,devicePlatform};
   }).filter(d=>d.day&&/^\d{4}-\d{2}-\d{2}$/.test(d.day));
-  // Store raw for device spend breakdown
-  window._rawD2=allRows;
-  // Deduplicate for accurate leads/spend totals
   const seen=new Set(),dedup=[];
   allRows.forEach(r=>{const k=r.day+'|'+r.platform+'|'+r.devicePlatform;if(!seen.has(k)){seen.add(k);dedup.push(r)}});
-  console.log('Sheet 2: '+allRows.length+' raw → '+dedup.length+' dedup');
   return dedup;
 }
 
-// Week grouping
+// Grouping
 function wk(ds){const d=new Date(ds+'T00:00:00'),mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));const sun=new Date(mon);sun.setDate(mon.getDate()+6);const f=t=>String(t.getMonth()+1).padStart(2,'0')+'/'+String(t.getDate()).padStart(2,'0');return{l:f(mon)+'–'+f(sun),k:mon.toISOString().slice(0,10)}}
 
-function bySem(data,de,at){
-  const f=data.filter(d=>d.day>=de&&d.day<=at),s={};
-  f.forEach(d=>{const w=wk(d.day);if(!s[w.k])s[w.k]={l:w.l,k:w.k,leads:0,spend:0};s[w.k].leads+=d.leads;s[w.k].spend+=d.spend});
-  return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k));
-}
+function bySem(data,de,at){const f=data.filter(d=>d.day>=de&&d.day<=at),s={};f.forEach(d=>{const w=wk(d.day);if(!s[w.k])s[w.k]={l:w.l,k:w.k,leads:0,spend:0};s[w.k].leads+=d.leads;s[w.k].spend+=d.spend});return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k))}
 
-function byField(data,de,at,field,values){
-  const f=data.filter(d=>d.day>=de&&d.day<=at),r={};
-  values.forEach(v=>r[v]={leads:0,spend:0});
-  f.forEach(d=>{const v=d[field];if(v&&r[v]){r[v].leads+=d.leads;r[v].spend+=d.spend}});
-  return r;
-}
+function byField(data,de,at,field,values){const f=data.filter(d=>d.day>=de&&d.day<=at),r={};values.forEach(v=>r[v]={leads:0,spend:0});f.forEach(d=>{const v=d[field];if(v&&r[v]){r[v].leads+=d.leads;r[v].spend+=d.spend}});return r}
+
+function bySemByPlatform(data,de,at){const f=data.filter(d=>d.day>=de&&d.day<=at),s={};f.forEach(d=>{const w=wk(d.day);if(!s[w.k])s[w.k]={l:w.l,k:w.k,fb:0,ig:0};if(d.platform==='Facebook')s[w.k].fb+=d.leads;else if(d.platform==='Instagram')s[w.k].ig+=d.leads});return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k))}
 
 const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{size:11},bodyFont:{size:11}};
 
-function bySemByPlatform(data,de,at){
-  const f=data.filter(d=>d.day>=de&&d.day<=at);
-  const s={};
-  f.forEach(d=>{
-    const w=wk(d.day);
-    if(!s[w.k])s[w.k]={l:w.l,k:w.k,fb:0,ig:0};
-    if(d.platform==='Facebook')s[w.k].fb+=d.leads;
-    else if(d.platform==='Instagram')s[w.k].ig+=d.leads;
-  });
-  return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k));
-}
-
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
-
-  // Filter both datasets by date
   const f1=D1.filter(d=>d.day>=de&&d.day<=at);
   const f2=D2.filter(d=>d.day>=de&&d.day<=at);
-
   if(!f1.length&&!f2.length){alert('No data found for this period.');return}
-
   Object.values(CH).forEach(c=>c?.destroy());CH={};
 
-  // KPIs — use D1 as primary, fallback to D2
+  // KPIs from D1
   const kpiData=f1.length?f1:f2;
   const tl=kpiData.reduce((a,d)=>a+d.leads,0);
   const ts=kpiData.reduce((a,d)=>a+d.spend,0);
   const tc=tl>0?Math.round(ts/tl*100)/100:0;
   const dias=Math.round((new Date(at)-new Date(de))/864e5)+1;
-
   $('kL').textContent=tl.toLocaleString('en-US');
   $('kI').textContent='$'+ts.toFixed(2);
   $('kC').textContent='$'+tc.toFixed(2);
   $('kD').textContent=dias+' days';
 
-  // Weekly data from primary source
+  // Weekly
   const sem=bySem(kpiData,de,at);
   const lb=sem.map(s=>s.l),ld=sem.map(s=>s.leads),sp=sem.map(s=>s.spend),cp=sem.map(s=>s.leads>0?Math.round(s.spend/s.leads*100)/100:0);
 
-  // Age + Gender from D1
+  // Age + Gender
   const age=byField(D1,de,at,'age',AGES);
   const gen=byField(D1,de,at,'gender',GENDERS);
   const al=AGES.map(a=>age[a].leads);
-  const gl=GENDERS.map(g=>gen[g].leads);
+  const fl=gen['Female'].leads,ml=gen['Male'].leads,gtot=fl+ml;
+  const fpct=gtot>0?Math.round(fl/gtot*100):0;
+  const mpct=gtot>0?Math.round(ml/gtot*100):0;
 
-  // Platform leads from D2 (already deduplicated)
+  // Gender visual bars
+  $('genValF').textContent=fl;$('genPctF').textContent=fpct+'%';
+  $('genValM').textContent=ml;$('genPctM').textContent=mpct+'%';
+  $('genBarF').style.width=fpct+'%';
+  $('genBarM').style.width=mpct+'%';
+
+  // Platform
   const plat=byField(D2,de,at,'platform',PLATFORMS);
-  const pl=PLATFORMS.map(p=>plat[p].leads);
+  const fbLeads=plat['Facebook'].leads,igLeads=plat['Instagram'].leads;
+  const fbSpend=plat['Facebook'].spend,igSpend=plat['Instagram'].spend;
+  const fbCpl=fbLeads>0?(fbSpend/fbLeads).toFixed(2):'-';
+  const igCpl=igLeads>0?(igSpend/igLeads).toFixed(2):'-';
+  $('pFbL').textContent=fbLeads.toLocaleString('en-US');
+  $('pFbC').textContent='CPL $'+fbCpl;
+  $('pIgL').textContent=igLeads.toLocaleString('en-US');
+  $('pIgC').textContent='CPL $'+igCpl;
 
-  // Debug
-  console.log('Filter:', de, 'to', at);
-  console.log('D1 filtered:', f1.length, '| D2 filtered:', f2.length);
-  console.log('KPI leads:', tl, '| Platform leads:', pl);
+  // Platform weekly trend
+  const semP=bySemByPlatform(D2,de,at);
+  const plLb=semP.map(s=>s.l),plFb=semP.map(s=>s.fb),plIg=semP.map(s=>s.ig);
 
   // ---- CHARTS ----
 
@@ -272,55 +312,31 @@ function render(){
   // Weekly Spend
   if(sem.length) CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}}}}});
 
-  // Leads by Age (horizontal bar)
+  // Leads by Age
   CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
 
-  // Leads by Gender (doughnut)
-  CH.e=new Chart($('c5'),{type:'doughnut',data:{labels:['Female','Male'],datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
-
-  // Leads by Platform (doughnut)
-  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:PLATFORMS,datasets:[{data:pl,backgroundColor:['#60a5fa','#e879a8'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
-
-  // Leads by Platform per Week (stacked bar)
-  const semD2=bySemByPlatform(D2,de,at);
-  const semD2Labels=semD2.map(s=>s.l);
-  const fbData=semD2.map(s=>s.fb);
-  const igData=semD2.map(s=>s.ig);
-  CH.g=new Chart($('c7'),{type:'bar',data:{labels:semD2Labels,datasets:[
-    {label:'Facebook',data:fbData,backgroundColor:'#60a5fa',borderRadius:4,borderSkipped:false},
-    {label:'Instagram',data:igData,backgroundColor:'#e879a8',borderRadius:4,borderSkipped:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{...TT,callbacks:{label:c=>' '+c.dataset.label+': '+c.raw+' leads'}}},scales:{x:{stacked:true,grid:{display:false},border:{display:false}},y:{stacked:true,grid:{color:GC},border:{display:false},beginAtZero:true}}}});
+  // Platform trend (line)
+  if(semP.length) CH.e=new Chart($('c5'),{type:'line',data:{labels:plLb,datasets:[
+    {label:'Facebook',data:plFb,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.05)',borderWidth:2.5,pointRadius:4,pointBorderWidth:2,pointBorderColor:'#0c1220',pointBackgroundColor:'#60a5fa',tension:.4,fill:true},
+    {label:'Instagram',data:plIg,borderColor:'#e879a8',backgroundColor:'rgba(232,121,168,0.05)',borderWidth:2.5,pointRadius:4,pointBorderWidth:2,pointBorderColor:'#0c1220',pointBackgroundColor:'#e879a8',tension:.4,fill:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11},boxWidth:12}},tooltip:{...TT,callbacks:{label:c=>' '+c.dataset.label+': '+c.raw+' leads'}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},beginAtZero:true}}}});
 }
 
 async function load(){
   const dot=$('sDot'),txt=$('sTxt'),o=$('ov');
   dot.className='dot-s ld';txt.textContent='Loading...';o.style.display='flex';
   try{
-    // Fetch both sheets in parallel
     const [res1,res2]=await Promise.all([fetch(URL1),fetch(URL2)]);
     if(!res1.ok)throw new Error('Sheet 1: HTTP '+res1.status);
     if(!res2.ok)throw new Error('Sheet 2: HTTP '+res2.status);
-
     const [t1,t2]=await Promise.all([res1.text(),res2.text()]);
-    const rows1=csv(t1),rows2=csv(t2);
-
-    D1=proc1(rows1);
-    D2=proc2(rows2);
-
+    D1=proc1(csv(t1));D2=proc2(csv(t2));
     if(!D1.length&&!D2.length)throw new Error('No valid data found');
-
-    // Date range from both sources
     const allDays=[...D1.map(d=>d.day),...D2.map(d=>d.day)].sort();
     const mn=allDays[0],mx=allDays[allDays.length-1];
     const mxD=new Date(mx+'T00:00:00'),df=new Date(mxD.getFullYear(),mxD.getMonth(),1).toISOString().slice(0,10);
-
-    $('dF').value=df;$('dF').min=mn;$('dF').max=mx;
-    $('dT').value=mx;$('dT').min=mn;$('dT').max=mx;
-
-    dot.className='dot-s on';
-    const n=new Date();
-    const totalRows=D1.length+D2.length;
-    txt.textContent=totalRows+' rows · '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+    $('dF').value=df;$('dF').min=mn;$('dF').max=mx;$('dT').value=mx;$('dT').min=mn;$('dT').max=mx;
+    dot.className='dot-s on';const n=new Date();txt.textContent=(D1.length+D2.length)+' rows · '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
     $('ft').textContent='Smiley Clean Homes · Data from '+mn+' to '+mx+' · Google Sheets + Meta Ads';
     render();
   }catch(e){dot.className='dot-s err';txt.textContent='Error: '+e.message;console.error(e)}
