@@ -116,7 +116,7 @@
     </div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Platform & Device</div>
+    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Platform Performance</div>
     <div class="cr cr2">
       <div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div>
       <div class="cc"><div class="cw"><canvas id="c7"></canvas></div></div>
@@ -189,14 +189,6 @@ function proc2(rows){
   return dedup;
 }
 
-function byDeviceSpend(de,at){
-  const raw=window._rawD2||[];
-  const f=raw.filter(d=>d.day>=de&&d.day<=at&&d.spend>0);
-  const c={};
-  f.forEach(d=>{if(d.convDevice){if(!c[d.convDevice])c[d.convDevice]=0;c[d.convDevice]+=d.spend}});
-  return Object.entries(c).sort((a,b)=>b[1]-a[1]);
-}
-
 // Week grouping
 function wk(ds){const d=new Date(ds+'T00:00:00'),mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));const sun=new Date(mon);sun.setDate(mon.getDate()+6);const f=t=>String(t.getMonth()+1).padStart(2,'0')+'/'+String(t.getDate()).padStart(2,'0');return{l:f(mon)+'–'+f(sun),k:mon.toISOString().slice(0,10)}}
 
@@ -214,6 +206,18 @@ function byField(data,de,at,field,values){
 }
 
 const TT={backgroundColor:'rgba(12,18,32,0.95)',borderColor:'rgba(148,163,184,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{size:11},bodyFont:{size:11}};
+
+function bySemByPlatform(data,de,at){
+  const f=data.filter(d=>d.day>=de&&d.day<=at);
+  const s={};
+  f.forEach(d=>{
+    const w=wk(d.day);
+    if(!s[w.k])s[w.k]={l:w.l,k:w.k,fb:0,ig:0};
+    if(d.platform==='Facebook')s[w.k].fb+=d.leads;
+    else if(d.platform==='Instagram')s[w.k].ig+=d.leads;
+  });
+  return Object.values(s).sort((a,b)=>a.k.localeCompare(b.k));
+}
 
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
@@ -252,11 +256,6 @@ function render(){
   const plat=byField(D2,de,at,'platform',PLATFORMS);
   const pl=PLATFORMS.map(p=>plat[p].leads);
 
-  // Device breakdown by spend (from raw non-dedup data)
-  const devSpend=byDeviceSpend(de,at);
-  const devLabels=devSpend.map(e=>e[0]);
-  const devVals=devSpend.map(e=>Math.round(e[1]*100)/100);
-
   // Debug
   console.log('Filter:', de, 'to', at);
   console.log('D1 filtered:', f1.length, '| D2 filtered:', f2.length);
@@ -282,9 +281,15 @@ function render(){
   // Leads by Platform (doughnut)
   CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:PLATFORMS,datasets:[{data:pl,backgroundColor:['#60a5fa','#e879a8'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
 
-  // Spend by Conversion Device (horizontal bar)
-  const devColors=['#14b8a6','#60a5fa','#f472b6','#a78bfa','#fbbf24','#34d399'];
-  CH.g=new Chart($('c7'),{type:'bar',data:{labels:devLabels,datasets:[{data:devVals,backgroundColor:devLabels.map((_,i)=>devColors[i%devColors.length]),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}},y:{grid:{display:false},border:{display:false}}}}});
+  // Leads by Platform per Week (stacked bar)
+  const semD2=bySemByPlatform(D2,de,at);
+  const semD2Labels=semD2.map(s=>s.l);
+  const fbData=semD2.map(s=>s.fb);
+  const igData=semD2.map(s=>s.ig);
+  CH.g=new Chart($('c7'),{type:'bar',data:{labels:semD2Labels,datasets:[
+    {label:'Facebook',data:fbData,backgroundColor:'#60a5fa',borderRadius:4,borderSkipped:false},
+    {label:'Instagram',data:igData,backgroundColor:'#e879a8',borderRadius:4,borderSkipped:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{...TT,callbacks:{label:c=>' '+c.dataset.label+': '+c.raw+' leads'}}},scales:{x:{stacked:true,grid:{display:false},border:{display:false}},y:{stacked:true,grid:{color:GC},border:{display:false},beginAtZero:true}}}});
 }
 
 async function load(){
