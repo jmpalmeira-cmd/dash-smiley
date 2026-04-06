@@ -69,7 +69,7 @@
   </style>
 </head>
 <body>
-<div id="ov" class="ov"><div class="sp"></div><div class="ov-t">Carregando dados do Meta Ads...</div></div>
+<div id="ov" class="ov"><div class="sp"></div><div class="ov-t">Loading Meta Ads data...</div></div>
 <nav class="nav"><div class="nav-inner">
   <div class="nav-brand"><div class="nav-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1m0 16v1m-8-9H3m18 0h-1m-2.636-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/><circle cx="12" cy="12" r="4"/></svg></div><span class="nav-name">Smiley Clean Homes</span><span class="nav-tag">Traffic Dashboard</span></div>
   <div class="nav-right">
@@ -108,17 +108,10 @@
     <div class="cr cr2"><div class="cc"><div class="cw"><canvas id="c2"></canvas></div></div><div class="cc"><div class="cw"><canvas id="c3"></canvas></div></div></div>
   </div>
   <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age Group</div>
+    <div class="sec-h"><span class="dot" style="background:var(--green)"></span>Leads by Age & Gender</div>
     <div class="cr cr2">
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS BY AGE</div><div class="cw"><canvas id="c4"></canvas></div></div>
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">SPEND BY AGE</div><div class="cw"><canvas id="c5"></canvas></div></div>
-    </div>
-  </div>
-  <div class="sec">
-    <div class="sec-h"><span class="dot" style="background:var(--purple)"></span>Leads by Gender</div>
-    <div class="cr cr2">
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">LEADS BY GENDER</div><div class="cw"><canvas id="c6"></canvas></div></div>
-      <div class="cc"><div style="font-size:11px;color:var(--tm);margin-bottom:8px;font-weight:600">SPEND BY GENDER</div><div class="cw"><canvas id="c7"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c4"></canvas></div></div>
+      <div class="cc"><div class="cw"><canvas id="c6"></canvas></div></div>
     </div>
   </div>
 </div>
@@ -182,7 +175,7 @@ const $fk=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+Number(v).toFixed(2);
 function render(){
   const de=$('dF').value,at=$('dT').value;if(!de||!at)return;
   const sem=bySem(de,at),age=byAge(de,at),gen=byGender(de,at);
-  if(!sem.length){alert('Sem dados para este período.');return}
+  if(!sem.length){alert('No data found for this period.');return}
   Object.values(CH).forEach(c=>c?.destroy());CH={};
 
   const lb=sem.map(s=>s.l),ld=sem.map(s=>s.leads),sp=sem.map(s=>s.spend),cp=sem.map(s=>s.leads>0?Math.round(s.spend/s.leads*100)/100:0);
@@ -211,26 +204,19 @@ function render(){
   CH.c=new Chart($('c3'),{type:'bar',data:{labels:lb,datasets:[{data:sp.map(v=>Math.round(v*100)/100),backgroundColor:'#8b5cf6',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}}}}});
 
   // Leads by Age
-  CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL '+$f(ac[c.dataIndex])}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
+  CH.d=new Chart($('c4'),{type:'bar',data:{labels:AGES,datasets:[{data:al,backgroundColor:['#14b8a6','#2dd4bf','#5eead4','#99f6e4'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}},scales:{x:{grid:{color:GC},border:{display:false}},y:{grid:{display:false},border:{display:false}}}}});
 
-  // Spend by Age
-  CH.e=new Chart($('c5'),{type:'bar',data:{labels:AGES,datasets:[{data:as2.map(v=>Math.round(v*100)/100),backgroundColor:['#8b5cf6','#a78bfa','#c4b5fd','#ddd6fe'],borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}},scales:{x:{grid:{color:GC},border:{display:false},ticks:{callback:v=>$fk(v)}},y:{grid:{display:false},border:{display:false}}}}});
-
-  // Leads por Leads by Gender
-  const glabels=['Feminino','Masculino'];
-  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:glabels,datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads · CPL '+$f(gc[c.dataIndex])}}}}});
-
-  // Investimento por Leads by Gender
-  CH.g=new Chart($('c7'),{type:'doughnut',data:{labels:glabels,datasets:[{data:gs.map(v=>Math.round(v*100)/100),backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+$f(c.raw)}}}}});
+  // Leads by Gender
+  CH.f=new Chart($('c6'),{type:'doughnut',data:{labels:['Female','Male'],datasets:[{data:gl,backgroundColor:['#f472b6','#60a5fa'],borderColor:'#0c1220',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',padding:16,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>' '+c.raw+' leads'}}}}});
 }
 
 async function load(){
   const dot=$('sDot'),txt=$('sTxt'),o=$('ov');
-  dot.className='dot-s ld';txt.textContent='Carregando...';o.style.display='flex';
+  dot.className='dot-s ld';txt.textContent='Loading...';o.style.display='flex';
   try{
     const res=await fetch(URL_CSV);if(!res.ok)throw new Error('HTTP '+res.status);
-    const t=await res.text(),rows=csv(t);if(!rows.length)throw new Error('Planilha vazia');
-    D=proc(rows);if(!D.length)throw new Error('Sem dados válidos');
+    const t=await res.text(),rows=csv(t);if(!rows.length)throw new Error('Empty spreadsheet');
+    D=proc(rows);if(!D.length)throw new Error('No valid data found');
     const dts=D.map(d=>d.day).sort(),mn=dts[0],mx=dts[dts.length-1];
     const mxD=new Date(mx+'T00:00:00'),df=new Date(mxD.getFullYear(),mxD.getMonth(),1).toISOString().slice(0,10);
     $('dF').value=df;$('dF').min=mn;$('dF').max=mx;$('dT').value=mx;$('dT').min=mn;$('dT').max=mx;
